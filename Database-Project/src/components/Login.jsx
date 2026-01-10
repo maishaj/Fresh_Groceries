@@ -9,29 +9,9 @@ const Login = () => {
   const [password, setPassword] = React.useState("");
   const { setShowUserLogin, setUser, axios, navigate } = useAppContext();
 
-  //     const onSubmitHandler=async(event)=>{
-
-  //         try{
-  //    event.preventDefault();
-  //      const {data} = await axios.post(`/api/user/${state}`,{
-  //         name,email,password
-  //      });
-
-  //      if(data.success){
-  //             navigate('/')
-  //             setUser(data.user)
-  //              setShowUserLogin(false);
-  //      }else{
-  //            toast.error(data.message)
-  //      }
-  //         }catch(error){
-  //           toast.error(error.message)
-  //         }
-
-  //     }
   const onSubmitHandler = async (event) => {
-    event.preventDefault();
     try {
+      event.preventDefault();
       const { data } = await axios.post(`/api/user/${state}`, {
         name,
         email,
@@ -39,13 +19,9 @@ const Login = () => {
       });
 
       if (data.success) {
-        // ✅ Save token for protected routes
-        localStorage.setItem("token", data.token);
-
+        navigate("/");
         setUser(data.user);
         setShowUserLogin(false);
-        navigate("/");
-        toast.success("Logged in successfully");
       } else {
         toast.error(data.message);
       }
