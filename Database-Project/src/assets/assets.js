@@ -1,4 +1,4 @@
-import logo from "./logo.svg";
+import logo from "./logo2.jpeg";
 import search_icon from "./search_icon.svg";
 import remove_icon from "./remove_icon.svg";
 import arrow_right_icon_colored from "./arrow_right_icon_colored.svg";
@@ -69,7 +69,7 @@ import vanilla_muffins_image from "./vanilla_muffins_image.png";
 import quinoa_image from "./quinoa_image.png";
 import brown_rice_image from "./brown_rice_image.png";
 import barley_image from "./barley_image.png";
-
+import about_us_image from "./aboutus.jpeg";
 export const assets = {
   logo,
   search_icon,
@@ -98,6 +98,7 @@ export const assets = {
   bottom_banner_image_sm,
   add_address_iamge,
   box_icon,
+  about_us_image,
 };
 
 export const categories = [

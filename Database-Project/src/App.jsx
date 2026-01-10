@@ -18,7 +18,7 @@ import SellerLayout from './pages/seller/SellerLayout'
 import ProductList from './pages/seller/ProductList'
 import Orders from './pages/seller/Orders'
 import AddProduct from './pages/seller/AddProduct'
-
+import AboutUs from "./pages/AboutUs";
 
 function App() {
 
@@ -35,7 +35,8 @@ bg-white"'>
       <div className={` ${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}>
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/products' element={<AllProducts />} />
+          <Route path="/aboutus" element={<AboutUs/>}/>
+          <Route path='/products' element={<AllProducts />}/>
           <Route path='/products/:category' element={<ProductCategory />} />
           <Route path='/products/:category/:id' element={<ProductDetails />} />
           <Route path='/cart' element={<Cart />} />

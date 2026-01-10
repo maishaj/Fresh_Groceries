@@ -39,7 +39,7 @@ const MyOrders = () => {
 mb-10 p-4 py-5 max-w-4x1"
         >
           <p
-            className="flex justify-between md:items-center
+            className="flex md:gap-50 lg:gap-50 md:items-center
 text-gray-400 md: font-medium max-md:flex-col"
           >
             <span>OrderId :{order._id}</span>
@@ -54,7 +54,7 @@ text-gray-400 md: font-medium max-md:flex-col"
             <div
               key={index}
               className={
-                'relative bg-white text-gray-500/70 ${order.items.length!==index+1 && "border-b"} border-gray-300 flex flex-col md:flex-row md:items-center justify-between p-4 py-5 md:gap-16 w-full max-w-4xl'
+                'relative bg-white text-gray-500/70 ${order.items.length!==index+1 && "border-b"} border-gray-300 flex justify-between flex-col md:flex-row md:items-center p-4 py-5 md:gap-16 w-full max-w-4xl'
               }
             >
               <div className="flex items-center mb-4 md:mb-0">
@@ -75,16 +75,17 @@ text-gray-400 md: font-medium max-md:flex-col"
                 </div>
               </div>
 
-              <div className="flex flex-col justify-center md:ml-8 mb-4 md:mb-0">
-                <p>Quantity: {item.quantity || "1"}</p>
-                <p>Status: {order.status}</p>
-                <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-              </div>
+                <div className="flex flex-col justify-center md:ml-8 mb-4 md:mb-0">
+                  <p>Quantity: {item.quantity || "1"}</p>
+                  <p>Status: {order.status}</p>
+                  <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                </div>
 
-              <p className="mt-2 font-medium text-gray-700">
+              <div className="mt-2 font-medium text-gray-700">
                 Amount: {currency}
                 {item.product.offerPrice * item.quantity}
-              </p>
+              </div>
+
             </div>
           ))}
         </div>

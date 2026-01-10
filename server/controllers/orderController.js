@@ -1,125 +1,154 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import Stripe from 'stripe';
+import Stripe from "stripe";
 
 // place order COD
-export const placeOrderCOD = async (req,res)=>{
- try{
-    const {userId,items,address} = req.body;
-    if(!address || items.length === 0){
-        return res.json({success: false, message: "Invalid data"})
+// export const placeOrderCOD = async (req, res) => {
+//   try {
+//     const { userId, items, address } = req.body;
+//     if (!address || items.length === 0) {
+//       return res.json({ success: false, message: "Invalid data" });
+//     }
+//     let amount = await items.reduce(async (acc, item) => {
+//       const product = await Product.findById(item.product);
+//       return acc + product.offerPrice * item.quantity;
+//     }, 0);
+
+//     amount += Math.floor(amount * 0.02);
+//     await Order.create({
+//       userId,
+//       items,
+//       amount,
+//       address,
+//       paymentType: "COD",
+//     });
+//     return res.json({ success: true, message: "Order placed successfully" });
+//   } catch (error) {
+//     return res.json({ success: false, message: error.message });
+//   }
+// };
+export const placeOrderCOD = async (req, res) => {
+  try {
+    const { userId, items, address } = req.body;
+    if (!address || items.length === 0) {
+      return res.json({ success: false, message: "Invalid data" });
     }
-    let amount = await items.reduce(async(acc,item)=>{
-        const product = await Product.findById(item.product);
-        return acc + product.offerPrice * item.quantity;
-    }, 0)
+
+    let amount = 0;
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product)
+        return res.json({ success: false, message: "Product not found" });
+
+      amount += product.offerPrice * item.quantity;
+    }
 
     amount += Math.floor(amount * 0.02);
-    await Order.create({
-        userId,
-        items,
-        amount,
-        address,
-        paymentType: "COD",
-    });
-    return res.json({success:true,message: "Order placed successfully"})
- }catch(error){
-    return res.json({success:false,message:error.message})
 
- }
-}
+    await Order.create({
+      userId,
+      items,
+      amount,
+      address,
+      paymentType: "COD",
+    });
+
+    return res.json({ success: true, message: "Order placed successfully" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
 
 // place order Stripe: /api/order/stripe
-export const placeOrderStripe = async (req,res)=>{
- try{
-    const {userId,items,address} = req.body;
-    const {origin} = req.headers;
+export const placeOrderStripe = async (req, res) => {
+  try {
+    const { userId, items, address } = req.body;
+    const { origin } = req.headers;
 
-    if(!address || items.length === 0){
-        return res.json({success: false, message: "Invalid data"})
+    if (!address || items.length === 0) {
+      return res.json({ success: false, message: "Invalid data" });
     }
-           
+
     let productData = [];
 
-
-    let amount = await items.reduce(async(acc,item)=>{
-        const product = await Product.findById(item.product);
-        productData.push({
-            name:product.name,
-            price: product.offerPrice,
-            quantity: item.quantity,
-        });
-        return acc + product.offerPrice * item.quantity;
-    }, 0)
+    let amount = await items.reduce(async (acc, item) => {
+      const product = await Product.findById(item.product);
+      productData.push({
+        name: product.name,
+        price: product.offerPrice,
+        quantity: item.quantity,
+      });
+      return acc + product.offerPrice * item.quantity;
+    }, 0);
 
     amount += Math.floor(amount * 0.02);
-   const order = await Order.create({
-        userId,
-        items,
-        amount,
-        address,
-        paymentType: "Online",
+    const order = await Order.create({
+      userId,
+      items,
+      amount,
+      address,
+      paymentType: "Online",
     });
 
     // stripe gateway initialize
     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
     // create line items for stripe
-    const line_items = productData.map((item)=>{
-        return {
-            price_data: {
-                currency: 'BDT',
-                product_data:{
-                    name:item.name,
-                },
-                unit_amount : Math.floor(item.price+item.price*0.02)*100
-            },
-            quantity: item.quantity,
-        }
-    })
+    const line_items = productData.map((item) => {
+      return {
+        price_data: {
+          currency: "BDT",
+          product_data: {
+            name: item.name,
+          },
+          unit_amount: Math.floor(item.price + item.price * 0.02) * 100,
+        },
+        quantity: item.quantity,
+      };
+    });
 
     // create session
     const session = await stripeInstance.checkout.sessions.create({
-        line_items,
-        mode: "payment",
-        success_url: `${origin}/loader?next=my-orders`,
-        cancel_url: `${origin}/cart`,
-        metadata: {
-            orderId: order._id.toString(),
-            userId,
-        }
-    })
-    return res.json({success:true,url: session.url })
- }catch(error){
-    return res.json({success:false,message:error.message})
-
- }
-}
-
+      line_items,
+      mode: "payment",
+      success_url: `${origin}/loader?next=my-orders`,
+      cancel_url: `${origin}/cart`,
+      metadata: {
+        orderId: order._id.toString(),
+        userId,
+      },
+    });
+    return res.json({ success: true, url: session.url });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
 
 // Get orders by user ID
-export const getUserOrders = async(req,res)=>{
-    try{
-        const {userId} = req.body;
-        const orders = await Order.find({
-            userId,
-            $or : [{paymentType : "COD"}, {isPaid:true}]
-        }).populate("items.product address").sort({createdAt: -1});
-        res.json({success:true,orders})
-    }catch(error){
-        res.json({success:false,message:error.message});
-    }
-}
+export const getUserOrders = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const orders = await Order.find({
+      userId,
+      $or: [{ paymentType: "COD" }, { isPaid: true }],
+    })
+      .populate("items.product address")
+      .sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
-
-export const getAllOrders = async(req,res)=>{
-    try{
-        const orders = await Order.find({
-            $or : [{paymentType : "COD"}, {isPaid:true}]
-        }).populate("items.product address").sort({createdAt: -1});
-        res.json({success:true,orders})
-    }catch(error){
-        res.json({success:false,message:error.message});
-    }
-}
-
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({
+      $or: [{ paymentType: "COD" }, { isPaid: true }],
+    })
+      .populate("items.product address")
+      .sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
