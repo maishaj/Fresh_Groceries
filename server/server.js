@@ -21,7 +21,10 @@ await connectDB();
 await connectCloudinary();
 
 // Allowed origins for CORS
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://fresh-groceries-frontend.onrender.com",
+];
 
 // Middleware
 app.use(express.json());
