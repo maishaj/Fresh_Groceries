@@ -17,7 +17,10 @@ const port = process.env.PORT || 4000;
 await connectDB();
 await connectCloudinary();
 
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://fresh-groceries.onrender.com",
+];
 // Middleware configuration
 app.use(express.json());
 app.use(cookieParser());
