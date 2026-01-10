@@ -81,7 +81,10 @@ const app = express();
 // 🔥 THIS IS THE MOST IMPORTANT PART
 app.use(
   cors({
-    origin: "https://fresh-groceries-frontend.onrender.com",
+    origin: [
+      "https://fresh-groceries-frontend.onrender.com",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
