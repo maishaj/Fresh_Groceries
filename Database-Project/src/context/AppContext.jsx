@@ -17,7 +17,7 @@ export const AppContextProvider = ({ children }) => {
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState({});
-  const [searchQuery, setsearchQuery] = useState({}); 
+  const [searchQuery, setsearchQuery] = useState({});
 
   // Fetch seller Status
   const fetchSeller = async () => {
@@ -35,15 +35,27 @@ export const AppContextProvider = ({ children }) => {
 
   // fetch user auth status , user data and card items
 
+  // const fetchUser = async () => {
+  //   try {
+  //     const { data } = await axios.get("/api/user/is-auth");
+  //     if (data.success) {
+  //       setUser(data.user);
+  //       setCartItems(data.user.cartItems);
+  //     }
+  //   } catch (error) {
+  //     setUser(null);
+  //   }
+  // };
   const fetchUser = async () => {
     try {
       const { data } = await axios.get("/api/user/is-auth");
       if (data.success) {
         setUser(data.user);
-        setCartItems(data.user.cartItems);
+        setCartItems(data.user.cartItems || {});
       }
     } catch (error) {
       setUser(null);
+      setCartItems({});
     }
   };
   // fetch all products
@@ -112,7 +124,10 @@ export const AppContextProvider = ({ children }) => {
     for (const items in cartItems) {
       let itemInfo = products.find((product) => product._id === items);
       if (cartItems[items] > 0) {
+        if (itemInfo) {
         totalAmount += itemInfo.offerPrice * cartItems[items];
+      }
+        //totalAmount += itemInfo.offerPrice * cartItems[items];
       }
     }
     return Math.floor(totalAmount * 100) / 100;
@@ -169,4 +184,3 @@ export const AppContextProvider = ({ children }) => {
 export const useAppContext = () => {
   return useContext(AppContext);
 };
-
